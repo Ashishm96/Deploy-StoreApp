@@ -13,7 +13,7 @@ resource "aws_instance" "store_app_instance" {
               # Install and setup store app
               mkdir -p /var/www/store-app
               cd /var/www/store-app
-              curl -O https://raw.githubusercontent.com/<your-username>/store-app-deployment/main/store-app/app.js
+              curl -O https://raw.githubusercontent.com/Ashishm96/Deploy-StoreApp/main/store-app/app.js
               
               npm init -y
               npm install express --save
@@ -36,7 +36,7 @@ resource "aws_instance" "store_app_instance" {
               }
               EOT'
 
-              sudo ln -s /etc/nginx/sites-available/store_app /etc/nginx/sites-enabled/store_app
+              sudo ln -s /etc/nginx/sites-available/store_app /etc/nginx/sites-enabled/
               sudo systemctl restart nginx
               sudo systemctl enable nginx
   EOF
