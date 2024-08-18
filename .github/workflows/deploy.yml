@@ -41,3 +41,4 @@ jobs:
     - name: Reload Nginx
       run: |
         ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ubuntu@3.90.17.164 "sudo systemctl reload nginx"
+        
