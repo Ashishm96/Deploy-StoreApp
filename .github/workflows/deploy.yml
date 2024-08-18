@@ -1,42 +1,31 @@
-name: Deploy Node.js Application
+name: Deploy Store App
 
 on:
   push:
     branches:
-      - main  # Change this to the branch you want to deploy from
+      - main
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v2
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
+    - name: Set up SSH
+      uses: webfactory/ssh-agent@v0.5.3
       with:
-        node-version: '18.x'  # Specify your Node.js version here
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-    - name: Install dependencies
-      run: npm install
-
-    - name: Run tests
-      run: npm test  # Optional: If you have tests, run them
-
-    - name: Build project
-      run: npm run build  # Optional: If you have a build step
-
-    - name: Set up SSH key
+    - name: Copy updated files to EC2
       run: |
-        mkdir -p ~/.ssh
-        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan -H YOUR_SERVER_IP >> ~/.ssh/known_hosts  # Ensure the server’s host key is added to known_hosts
+        scp -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no store-app/app.js ubuntu@18.234.159.30 :/var/www/store-app/app.js
 
-    - name: Deploy to server
+    - name: Restart Node.js app
       run: |
-        ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ubuntu@YOUR_SERVER_IP "cd /var/www/store-app && git pull origin main && npm install && pm2 restart app"  # Adjust as needed
+        ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ubuntu@18.234.159.30  "pm2 restart store-app || pm2 start /var/www/store-app/app.js --name store-app"
 
-    - name: Clean up SSH key
-      run: rm -f ~/.ssh/id_rsa
+    - name: Reload Nginx
+      run: |
+        ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ubuntu@18.234.159.30 "sudo systemctl reload nginx"
