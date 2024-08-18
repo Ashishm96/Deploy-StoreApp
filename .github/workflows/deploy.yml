@@ -18,16 +18,16 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-    - name: Set known hosts
-      run: ssh-keyscan -H 3.90.17.164 >> ~/.ssh/known_hosts
-
-    - name: Check SSH Key
-      run: ls -la ~/.ssh/id_rsa
+    - name: Debug SSH Setup
+      run: |
+        ls -la ~/.ssh
+        cat ~/.ssh/id_rsa || echo "id_rsa not found or empty"
+        ssh -T git@github.com || echo "SSH authentication failed"
 
     - name: Copy updated files to EC2
       run: |
-        ssh -i ~/.ssh/id_rsa ubuntu@3.90.17.164 'sudo chmod -R 775 /var/www/store-app'
-        ssh -i ~/.ssh/id_rsa ubuntu@3.90.17.164 'sudo chown -R ubuntu:ubuntu /var/www/store-app'
+        ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ubuntu@3.90.17.164 'sudo chmod -R 775 /var/www/store-app'
+        ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ubuntu@3.90.17.164 'sudo chown -R ubuntu:ubuntu /var/www/store-app'
         scp -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no store-app/app.js ubuntu@3.90.17.164:/var/www/store-app/app.js
 
     - name: Install PM2 on EC2
@@ -41,4 +41,3 @@ jobs:
     - name: Reload Nginx
       run: |
         ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ubuntu@3.90.17.164 "sudo systemctl reload nginx"
-        
