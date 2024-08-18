@@ -36,15 +36,16 @@ jobs:
         ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ubuntu@3.90.17.164 'sudo npm install -g pm2'
         ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ubuntu@3.90.17.164 'which pm2 || echo "PM2 not found"'
 
-    - name: Copy updated files to EC2
+    - name: Verify File Transfer
       run: |
-        ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ubuntu@3.90.17.164 'sudo chmod -R 775 /var/www/store-app'
-        ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ubuntu@3.90.17.164 'sudo chown -R ubuntu:ubuntu /var/www/store-app'
         scp -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no store-app/app.js ubuntu@3.90.17.164:/var/www/store-app/app.js
+        ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ubuntu@3.90.17.164 'ls -la /var/www/store-app'
+        ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ubuntu@3.90.17.164 'cat /var/www/store-app/app.js'
 
     - name: Restart Node.js app
       run: |
         ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ubuntu@3.90.17.164 "pm2 restart store-app || pm2 start /var/www/store-app/app.js --name store-app"
+        ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ubuntu@3.90.17.164 'pm2 list'
 
     - name: Reload Nginx
       run: |
