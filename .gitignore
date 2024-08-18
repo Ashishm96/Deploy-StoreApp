@@ -52,6 +52,7 @@ publickey-pair
 .Terraform
 .tfstate
 .terraform
+terraform.tfstate
 
 node_modules/
 .env
