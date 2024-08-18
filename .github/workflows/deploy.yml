@@ -20,12 +20,12 @@ jobs:
 
     - name: Copy updated files to EC2
       run: |
-        scp -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no store-app/app.js ubuntu@18.234.159.30 :/var/www/store-app/app.js
+        scp -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no store-app/app.js ubuntu@3.90.17.164 :/var/www/store-app/app.js
 
     - name: Restart Node.js app
       run: |
-        ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ubuntu@18.234.159.30  "pm2 restart store-app || pm2 start /var/www/store-app/app.js --name store-app"
+        ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ubuntu@3.90.17.164  "pm2 restart store-app || pm2 start /var/www/store-app/app.js --name store-app"
 
     - name: Reload Nginx
       run: |
-        ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ubuntu@18.234.159.30 "sudo systemctl reload nginx"
+        ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ubuntu@3.90.17.164 "sudo systemctl reload nginx"
