@@ -24,15 +24,22 @@ jobs:
         cat ~/.ssh/id_rsa || echo "id_rsa not found or empty"
         ssh -T git@github.com || echo "SSH authentication failed"
 
+    - name: Configure npm Global Directory
+      run: |
+        ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ubuntu@3.90.17.164 'mkdir -p ~/.npm-global'
+        ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ubuntu@3.90.17.164 'npm config set prefix ~/.npm-global'
+        ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ubuntu@3.90.17.164 'echo "export PATH=~/.npm-global/bin:$PATH" >> ~/.profile'
+        ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ubuntu@3.90.17.164 'source ~/.profile'
+
+    - name: Install PM2 on EC2
+      run: |
+        ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ubuntu@3.90.17.164 'npm install -g pm2'
+
     - name: Copy updated files to EC2
       run: |
         ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ubuntu@3.90.17.164 'sudo chmod -R 775 /var/www/store-app'
         ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ubuntu@3.90.17.164 'sudo chown -R ubuntu:ubuntu /var/www/store-app'
         scp -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no store-app/app.js ubuntu@3.90.17.164:/var/www/store-app/app.js
-
-    - name: Install PM2 on EC2
-      run: |
-        ssh -i ~/.ssh/id_rsa ubuntu@3.90.17.164 'npm install -g pm2'
 
     - name: Restart Node.js app
       run: |
