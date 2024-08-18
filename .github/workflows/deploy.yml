@@ -20,7 +20,7 @@ jobs:
 
     - name: Copy updated files to EC2
       run: |
-        scp -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no store-app/app.js ubuntu@3.90.17.164 :/var/www/store-app/
+        scp -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no store-app/app.js ubuntu@3.90.17.164:/var/www/store-app/app.js
 
     - name: Restart Node.js app
       run: |
