@@ -1,0 +1,42 @@
+name: Deploy Node.js Application
+
+on:
+  push:
+    branches:
+      - main  # Change this to the branch you want to deploy from
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18.x'  # Specify your Node.js version here
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run tests
+      run: npm test  # Optional: If you have tests, run them
+
+    - name: Build project
+      run: npm run build  # Optional: If you have a build step
+
+    - name: Set up SSH key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H YOUR_SERVER_IP >> ~/.ssh/known_hosts  # Ensure the server’s host key is added to known_hosts
+
+    - name: Deploy to server
+      run: |
+        ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ubuntu@YOUR_SERVER_IP "cd /var/www/store-app && git pull origin main && npm install && pm2 restart app"  # Adjust as needed
+
+    - name: Clean up SSH key
+      run: rm -f ~/.ssh/id_rsa
