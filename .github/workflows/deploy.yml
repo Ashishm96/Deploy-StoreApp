@@ -1,9 +1,6 @@
-name: Deploy Store App
-
+name: Manual Workflow
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
   deploy:
